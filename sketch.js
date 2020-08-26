@@ -14,9 +14,9 @@ function draw() {
   // ellipse(mouseX,mouseY,50,50);
   fill(20,30,100);
   for (let shape of shapeCoord) {
-    rect(shape[0], shape[1], 100, 100);
+    circle(shape[0], shape[1], 10);
   }
-  rect(mouseX,mouseY, 100,100);
+  circle(mouseX,mouseY, 10);
   if (mouseIsPressed) {
     shapeCoord.push([mouseX,mouseY]);
   }
