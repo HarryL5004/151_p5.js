@@ -1,4 +1,4 @@
-let x =3;
+let shapeCoord = [];
 function setup() {
   createCanvas(document.documentElement.clientWidth, 
     document.documentElement.clientHeight);
@@ -13,11 +13,11 @@ function draw() {
   // }
   // ellipse(mouseX,mouseY,50,50);
   fill(20,30,100);
-  rect(x,100,100,100);
-  if (x > width) {
-    x = 0;
+  for (let shape of shapeCoord) {
+    rect(shape[0], shape[1], 100, 100);
   }
-  else {
-    x += 3;
+  rect(mouseX,mouseY, 100,100);
+  if (mouseIsPressed) {
+    shapeCoord.push([mouseX,mouseY]);
   }
 }
