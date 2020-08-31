@@ -4,7 +4,7 @@ let canvas;
 let nyancat;
 let nyanTrail;
 let rectSpd = 30;
-let xPos = docWidth/2;
+let trailXPos = docWidth/2-130;
 class Trail {
     constructor() {
         this.trail = [];
@@ -47,10 +47,12 @@ function preload() {
 
 function draw() {
     background(53, 87, 140);
-    image(nyancat, docWidth/2, mouseY);
     fill(242,245,56);
-    rect(docWidth/2-50, mouseY+50, 100,100);
+    
+    let yPos = mouseY+50;
+    rect(trailXPos, mouseY+50, 100,100);
     nyanTrail.show();
     nyanTrail.update();
-    nyanTrail.add(xPos-50, mouseY+50);
+    nyanTrail.add(trailXPos, mouseY+50);
+    image(nyancat, docWidth/2, mouseY);
 }
