@@ -1,23 +1,39 @@
-let shapeCoord = [];
+// let shapeCoord = [];
+let xPos, yPos;
+let xSpd = 3;
+let ySpd = 3;
+let xDir = 1;
+let yDir = 1;
+let docWidth = document.documentElement.clientWidth;
+let docHeight = document.documentElement.clientHeight;
+let canvas;
 function setup() {
-  createCanvas(document.documentElement.clientWidth, 
-    document.documentElement.clientHeight);
+  canvas = createCanvas(docWidth, docHeight);
+  background(220, 100, 100);
+  frameRate(60);
+  stroke(22);
+  xPos = 150;
+  yPos = 150;
 }
 
-function draw() {
-  background(220, 100, 100);
-  // if (mouseIsPressed) {
-  //   fill(0);
-  // } else {
-  //   fill(255);
-  // }
-  // ellipse(mouseX,mouseY,50,50);
+function draw() {  
   fill(20,30,100);
-  for (let shape of shapeCoord) {
-    circle(shape[0], shape[1], 10);
+  xPos += xSpd * xDir;
+  yPos += ySpd * yDir;
+  if (xPos >= width-50|| xPos < 50) {
+    xDir *= -1;
   }
-  circle(mouseX,mouseY, 10);
+  if (yPos >= height-50|| yPos < 50)
+    yDir *= -1;
   if (mouseIsPressed) {
-    shapeCoord.push([mouseX,mouseY]);
-  }
+    fill(118, 255, 3);
+  }  
+  circle(xPos, yPos, 100);  
 }
+
+function keyPressed() {
+  if (keyCode === DOWN_ARROW) {
+    let randNum = Math.ceil(Math.random()*100);
+    saveCanvas(canvas, 'p5canvas' + randNum, 'png');
+  }
+}    
