@@ -1,38 +1,41 @@
 let docWidth = document.documentElement.clientWidth;
 let docHeight = document.documentElement.clientHeight;
 let canvas;
-let nyancat;
-let nyanMusic;
 
+let nyanCat;
+let nyanMusic;
+let nyanCatSize = [264, 160];
 let nyanTrail;
-let rectSpd = 30;
 let trailXPos = docWidth/2-130;
+
 class Trail {
     constructor() {
         this.trail = [];
+        this.width = 200;
+        this.height = 100;
+        this.speed = 30;
     }
 
-    add(x, y) {
-        this.trail.push([x,y]);
+    add(vect) {
+        this.trail.push(vect);
     }
 
     show() {
-        for (let coords of this.trail) {
-            rect(coords[0], coords[1], 200, 100);
+        for (let vect of this.trail) {
+            rect(vect.x, vect.y, this.width, this.height);
         }
     }
+
     update() {
-        this.trail.forEach(trailCoords => {
-            trailCoords[0] -= rectSpd;
+        this.trail.forEach(vect => {        
+            vect.x -= this.speed;
         })
         this.removeOB();
     }
 
     removeOB() {
-        for (let i = 0; i < this.trail.length; ++i) {
-            if (this.trail[i][0] < 0) {
-                this.trail.splice(i, 1);
-            }
+        if (this.trail.length && this.trail[0].x < -this.width) {
+            this.trail.shift();
         }
     }
 }
@@ -45,26 +48,30 @@ function setup() {
 }
 
 function preload() {    
-    // nyancat = loadImage('assets/nyancat.png');
-    nyancat = createImg('assets/nyanCat.gif');
+    nyanCat = createImg('assets/nyanCat.gif', "nyan cat", "anonymous", e => {
+        e.hide();
+    });
     soundFormats('ogg', 'mp3');
     nyanMusic = loadSound('assets/nyanCat');
 }
 
 function draw() {
-    background(53, 87, 140);
+    background(53, 87, 140);    
+    nyanCat.show()
+    let nyancatY = mouseY < docHeight-nyanCatSize[1] ? mouseY : docHeight-nyanCatSize[1];
+    nyanCat.position(docWidth/2, nyancatY);
+
     fill(242,245,56);
-    
-    let trailYPos = mouseY+50;
-    rect(trailXPos, mouseY+50, 100,100);
+    let trailYPos = nyancatY+50;
+    let vect = createVector(trailXPos, trailYPos);
+    nyanTrail.add(vect);
     nyanTrail.show();
     nyanTrail.update();
-    nyanTrail.add(trailXPos, trailYPos);
-    // image(nyancat, docWidth/2, mouseY);
-    nyancat.position(docWidth/2, mouseY);
 }
 
 function mousePressed() {
-    if (!nyanMusic.isPlaying())
+    if (!nyanMusic.isPlaying()) {
+        nyanMusic.setVolume(0.2);
         nyanMusic.loop();
+    }
 }
