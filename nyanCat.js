@@ -2,6 +2,8 @@ let docWidth = document.documentElement.clientWidth;
 let docHeight = document.documentElement.clientHeight;
 let canvas;
 let nyancat;
+let nyanMusic;
+
 let nyanTrail;
 let rectSpd = 30;
 let trailXPos = docWidth/2-130;
@@ -41,18 +43,28 @@ function setup() {
     frameRate(60);
     nyanTrail = new Trail();
 }
+
 function preload() {    
-    nyancat = loadImage('unnamed.png');
+    // nyancat = loadImage('assets/nyancat.png');
+    nyancat = createImg('assets/nyanCat.gif');
+    soundFormats('ogg', 'mp3');
+    nyanMusic = loadSound('assets/nyanCat');
 }
 
 function draw() {
     background(53, 87, 140);
     fill(242,245,56);
     
-    let yPos = mouseY+50;
+    let trailYPos = mouseY+50;
     rect(trailXPos, mouseY+50, 100,100);
     nyanTrail.show();
     nyanTrail.update();
-    nyanTrail.add(trailXPos, mouseY+50);
-    image(nyancat, docWidth/2, mouseY);
+    nyanTrail.add(trailXPos, trailYPos);
+    // image(nyancat, docWidth/2, mouseY);
+    nyancat.position(docWidth/2, mouseY);
+}
+
+function mousePressed() {
+    if (!nyanMusic.isPlaying())
+        nyanMusic.loop();
 }
