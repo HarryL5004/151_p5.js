@@ -4,34 +4,7 @@ let canvas;
 
 let nyanCat;
 let nyanMusic;
-let nyanCatSize = [264, 160];
-let nyanTrail;
-let trailXPos = docWidth/2-130;
-
-class Trail {
-    constructor() {
-        this.history = [];
-        this.speed = 30;
-    }
-
-    add(vect) {
-        this.history.push(new Rainbow(vect.x, vect.y));
-    }
-
-    showNUpdate() {
-        this.history.forEach(rainbow => {
-            rainbow.show();
-            rainbow.update(this.speed);
-        });
-        this.removeOB();
-    }
-
-    removeOB() {
-        if (this.history.length && this.history[0].x < -Rainbow.width) {
-            this.history.shift();
-        }
-    }
-}
+let nyanCatSize = [264, 168, 56]; // w,h,pixels to tart
 
 class Rainbow {
 
@@ -66,8 +39,48 @@ class Rainbow {
         return this.rows[0][0];
     }
 }
-Rainbow.width = 200;
-Rainbow.height = 100/6; 
+Rainbow.width = 100; //200
+Rainbow.height = 84/6;  //100/6
+
+class Trail {
+    constructor() {
+        this.history = [];
+        this.speed = 20;
+        this.direction = true;
+    }
+
+    add(vect) {
+        // if (this.direction) {
+        //     this.history.push(new Rainbow(vect.x, vect.y));
+        // }
+        // else {
+        //     this.history.push(new Rainbow(vect.x, vect.y-Rainbow.height));
+        // }
+        this.history.push(new Rainbow(vect.x, vect.y));
+        this.direction = !this.direction;
+    }
+
+    showNUpdate() {
+        this.history.forEach(rainbow => {
+            rainbow.show();
+            rainbow.update(this.speed);
+        });
+        this.removeOB();
+    }
+
+    removeOB() {
+        if (this.history.length && this.history[0].x < -Rainbow.width) {
+            this.history.shift();
+        }
+    }
+
+    get lastRainbowX() {
+        if (!this.history.length)
+            return 0
+        return this.history[this.history.length-1].x
+    }
+}
+let nyanTrail;
 
 function preload() {    
     nyanCat = createImg('assets/nyanCat.gif', "nyan cat", "anonymous", elem => {
@@ -94,12 +107,21 @@ function setup() {
 function draw() {
     background(53, 87, 140);    
     nyanCat.show()
-    let nyancatY = mouseY < docHeight-nyanCatSize[1] ? mouseY : docHeight-nyanCatSize[1];
-    nyanCat.position(docWidth/2, nyancatY);
+    let nyanCatX = mouseX-nyanCatSize[2]-nyanCatSize[0]/2;
+    let nyanCatY = mouseY-nyanCatSize[1]/2;
+    if (mouseY+nyanCatSize[1]/2 >= docHeight) {
+        nyanCatY = docHeight-nyanCatSize[1];
+    } else if (mouseY-nyanCatSize[1]/2 <= 0) {
+        nyanCatY = 0;
+    }
+    nyanCat.position(nyanCatX, nyanCatY);
 
-    let trailYPos = nyancatY-(Rainbow.height*6/2)+(nyanCatSize[1]/2);
-    let vect = createVector(trailXPos, trailYPos);
-    nyanTrail.add(vect);
+    if (nyanCatX+nyanCatSize[2] - nyanTrail.lastRainbowX >= Rainbow.width) {
+        let trailXPos = nyanCatX+nyanCatSize[2];
+        let trailYPos = nyanCatY+(nyanCatSize[1]/2)-(Rainbow.height*6/2);
+        let vect = createVector(trailXPos, trailYPos);
+        nyanTrail.add(vect);
+    }
     nyanTrail.showNUpdate();
 }
 
@@ -107,10 +129,12 @@ function draw() {
 // }
 
 function keyPressed() {
-    if (key === 'p' && isLooping())
+    if (key === 'p' && isLooping()) {
         noLoop();
-    else if (key === 'p')
+    }        
+    else if (key === 'p') {
         loop();
+    }
 
     if (key === ' ' && nyanMusic.isPlaying())
         nyanMusic.pause();
