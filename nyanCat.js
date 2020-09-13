@@ -4,47 +4,12 @@ let canvas;
 let nyanCanvas;
 let bgCanvas;
 
-// let nyanCat;
+let nyanCat; // nyan cat size: W:264 H:168 Gap:56
 let nyanMusic;
-// let nyanCatSize = [264, 168, 56]; // w,h,pixels to tart
-let nyanCats = [];
+let smallNyanCats = [];
 let rainbowImg;
 let nyanImg;
 let earth;
-
-// class Rainbow {
-//     constructor(x, y, width, height) {
-//         this.rows = [];
-//         this.numRect = 6;
-//         this.color = [[231, 8, 15], [231, 145, 15], 
-//                       [231, 237, 15], [47, 237, 15], 
-//                       [2, 145, 244], [93, 54, 244]];
-//         for(let i = 1; i < this.numRect+1; i++) {
-//             // this.rows.push([x, y+Rainbow.height*i, Rainbow.width, Rainbow.height]);
-//             this.rows.push([x, y+height*i, width, height]);
-//         }
-//     }
-
-//     show() {
-//         for(let i = 0; i < this.numRect; i++) {
-//             fill(...this.color[i]);
-//             rect(this.rows[i][0]-docWidth/2, 
-//                  this.rows[i][1]-docHeight/2,
-//                  this.rows[i][2], 
-//                  this.rows[i][3]);
-//         }
-//     }
-
-//     update(speed) {     
-//         this.rows.forEach(row => {
-//             row[0] -= speed;
-//         }); 
-//     }
-    
-//     get x() {
-//         return this.rows[0][0];
-//     }
-// }
 
 class Trail {
     constructor(limit = 10, rWidth, rHeight) {
@@ -102,30 +67,35 @@ class NyanCat {
 }
 
 class SmallNyanCat {
-    constructor(x, y, xDir, yDir) {
+    constructor(x, y, xDir, yDir, xSpd=4, ySpd=5) {
         this.coords = {x,y};
         this.dimension = {w: 33, h: 20, g:7};
-        this.speed = createVector(4,5);
+        this.speed = createVector(xSpd,ySpd);
         this.direction = createVector(xDir,yDir);
+        this.colors = [color(231, 8, 15), color(231, 145, 15),
+                      color(231, 237, 15), color(47, 237, 15), 
+                      color(2, 145, 244), color(93, 54, 244)];
+        this.currColor = 0;
     }
 
-    move(vect) {
+    move() {
         this.coords.x += this.speed.x*this.direction.x;
         this.coords.y += this.speed.y*this.direction.y;
-        if (this.coords.x+this.dimension.w > docWidth || this.coords.x < 0) {
-            this.direction.x = -this.direction.x;
-        }
-        if (this.coords.y+this.dimension.h > docHeight || this.coords.y < 0) {
-            this.direction.y = -this.direction.y;
-        }
         this.trailing();
     }
 
     trailing() {
+        // determine trail size and position
         let radius = 14;
         let trailXPos = this.coords.x+this.dimension.w/2;
         let trailYPos = this.coords.y+this.dimension.h/2-radius/2;
-        bgCanvas.fill(Math.random()*100 % 255,Math.random()*100 % 255,Math.random()*100 % 255);
+
+        // determine trail color
+        let color = this.currColor % 1 === 0 ? this.colors[this.currColor] : 
+                    lerpColor(this.colors[this.currColor-0.5], this.colors[this.currColor+0.5], 0.5);
+        this.currColor = this.currColor+0.5 > 5 ? 0 : this.currColor+0.5;
+
+        bgCanvas.fill(color); // fill color
         bgCanvas.noStroke();
         bgCanvas.circle(trailXPos, trailYPos, radius);
     }
@@ -159,7 +129,7 @@ function setup() {
     bgCanvas = createGraphics(docWidth, docHeight); // canvas for trail
     frameRate(60);
 
-    nyanCats.push(new NyanCat(docWidth/2, docHeight/2, undefined, undefined, undefined, 10));
+    nyanCat = new NyanCat(docWidth/2, docHeight/2, undefined, undefined, undefined, 10);
 }
 
 function draw() {
@@ -179,11 +149,19 @@ function draw() {
     // draw bgCanvas starting at the top left corner
     image(bgCanvas, -docWidth/2, -docHeight/2, docWidth, docHeight);
 
+    nyanCat.move(createVector(mouseX, mouseY));
+    nyanCat.show();
+
     // display and update nyancats location
-    for (let cat of nyanCats) {
-        cat.move(createVector(mouseX, mouseY));
+    smallNyanCats.forEach((cat, i) => {
+        cat.move();
         cat.show();
-    }
+        // remove out of bounds nyan cats
+        if (cat.coords.x > docWidth || cat.coords.x < 0 ||
+            cat.coords.y > docHeight || cat.coords.y < 0) {
+                smallNyanCats.splice(i, 1);
+        }
+    })
 }
 
 function getRand() {
@@ -191,7 +169,10 @@ function getRand() {
 }
 
 function mousePressed() {
-    nyanCats.push(new SmallNyanCat(mouseX, mouseY,getRand(),getRand()));
+    smallNyanCats.push(new SmallNyanCat(mouseX, mouseY, 1, 1),
+                       new SmallNyanCat(mouseX, mouseY, -1, 1),
+                       new SmallNyanCat(mouseX, mouseY, 1, -1),
+                       new SmallNyanCat(mouseX, mouseY, -1, -1));
 }
 
 // event listener
@@ -207,6 +188,10 @@ function keyPressed() {
         nyanMusic.pause();
     else if (key === ' ') {
         nyanMusic.play();
+    }
+
+    if (key === 'r') {
+        bgCanvas.clear();
     }
     return false;
 }
