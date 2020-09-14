@@ -129,7 +129,7 @@ class SmallNyanCat {
 
 function preload() {
     // load images
-    nyanImg = loadImage("assets/nyancat.gif");
+    nyanImg = loadImage("assets/nyanCat.gif");
     rainbowImg = loadImage("assets/rainbow.png");
 
     // music
