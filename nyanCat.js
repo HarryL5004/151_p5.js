@@ -41,7 +41,7 @@ class Trail {
 }
 
 class NyanCat {
-    constructor(x, y, width=43, height=15, gap=7, trailCnt=-1, trailWidth=10, trailHeight=5) {
+    constructor(x, y, width=43, height=15, trailCnt=-1, trailWidth=10, trailHeight=5) {
         this.coords = {x, y};
         this.dimension = {w: width, h: height};
         this.trail = new Trail(trailCnt, trailWidth, trailHeight);
@@ -85,6 +85,7 @@ class SmallNyanCat {
                       color(231, 237, 15), color(47, 237, 15), 
                       color(2, 145, 244), color(93, 54, 244)];
         this.currColor = 0;
+        this.radius = 10;
     }
 
     move() {
@@ -95,9 +96,8 @@ class SmallNyanCat {
 
     trailing() {
         // determine trail size and position
-        let radius = 14;
         let trailXPos = this.coords.x+this.dimension.w/2;
-        let trailYPos = this.coords.y+this.dimension.h/2-radius/2;
+        let trailYPos = this.coords.y+this.dimension.h/2;
 
         // determine trail color
         let color = this.currColor % 1 === 0 ? this.colors[this.currColor] : 
@@ -106,11 +106,24 @@ class SmallNyanCat {
 
         bgCanvas.fill(color); // fill color
         bgCanvas.noStroke();
-        bgCanvas.circle(trailXPos, trailYPos, radius);
+        bgCanvas.circle(trailXPos, trailYPos, this.radius);
     }
 
     show() {
-        image(nyanImg, this.coords.x-docWidth/2, this.coords.y-docHeight/2, this.dimension.w, this.dimension.h);
+        push();
+        if (this.direction.x === 1)
+            image(nyanImg, this.coords.x-docWidth/2, this.coords.y-docHeight/2, this.dimension.w, this.dimension.h);
+        else if (this.direction.x === -1) {
+            scale(-1,1); // flip image
+            image(nyanImg, -(this.coords.x-docWidth/2)-this.dimension.w, this.coords.y-docHeight/2, this.dimension.w, this.dimension.h);
+        }
+        else if (this.direction.y === 1)
+            image(nyanImg, this.coords.x-docWidth/2, this.coords.y-docHeight/2, this.dimension.w, this.dimension.h);
+        else {
+            scale(-1,1); // flip image
+            image(nyanImg, -(this.coords.x-docWidth/2)-this.dimension.w, this.coords.y-docHeight/2, this.dimension.w, this.dimension.h);
+        }
+        pop();
     }
 }
 
@@ -148,11 +161,11 @@ function setup() {
     bgCanvas = createGraphics(docWidth, docHeight); // canvas for trail
     frameRate(60);
 
-    nyanCat = new NyanCat(docWidth/2, docHeight/2, undefined, undefined, undefined, 20);
+    nyanCat = new NyanCat(docWidth/2, docHeight/2, undefined, undefined, 20);
     vNyanCats.push(new SmallNyanCat(getRand(1, docWidth), 0, 0, 1, 0),
                    new SmallNyanCat(getRand(1, docWidth), docHeight, 0, -1,0));
     hNyanCats.push(new SmallNyanCat(0, getRand(1, docHeight), 1, 0, undefined, 0),
-                   new SmallNyanCat(0, getRand(1, docHeight), 1, 0, undefined, 0));
+                   new SmallNyanCat(docWidth, getRand(1, docHeight), -1, 0, undefined, 0));
 }
 
 function draw() {
