@@ -46,17 +46,19 @@ class NyanCat {
         this.dimension = {w: width, h: height};
         this.trail = new Trail(trailCnt, trailWidth, trailHeight);
         this.amplitude = 40;
-        this.radian = 0;
+        this.dx = 0.2;
+        this.dy = 0.1;
+        this.radians = [0, 0];
     }
     
-    calcSinWave() {
-        this.radian += 0.1;
-        return Math.sin(this.radian) * this.amplitude;
+    calcSinWave(dt, index) {
+        this.radians[index] += dt;
+        return Math.sin(this.radians[index]) * this.amplitude;
     }
 
     move() {
-        this.coords.x = this.calcSinWave() + docWidth/2;
-        this.coords.y = this.calcSinWave() + docHeight/2;
+        this.coords.x = this.calcSinWave(this.dx, 0) + docWidth/2;
+        this.coords.y = this.calcSinWave(this.dy, 1) + docHeight/2;
         this.trailing();
     }
 
