@@ -1,5 +1,10 @@
-P5.js Project
+P5.js: Generative Drawing
 ==========
+Getting Started
+-------
+---
+[Link to website](https://harryl5004.github.io/151_p5Tutorial)
+
 Key Binds
 -------
 ---
