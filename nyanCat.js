@@ -7,6 +7,11 @@ let nyanCat; // nyan cat size: W:264 H:168 Gap:56
 let smallNyanCats, vNyanCats, hNyanCats; // arrays for nyan cats
 let vDir, hDir; // keep track of vertical and horizontal nyan cats direction
 
+function getRand(min, max) {
+    if (min === max) return min;
+    return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
 class Trail {
     constructor(limit = 10, rWidth, rHeight) {
         this.history = [];
@@ -39,13 +44,19 @@ class NyanCat {
     constructor(x, y, width=43, height=15, gap=7, trailCnt=-1, trailWidth=10, trailHeight=5) {
         this.coords = {x, y};
         this.dimension = {w: width, h: height};
-        this.gap = gap;
         this.trail = new Trail(trailCnt, trailWidth, trailHeight);
+        this.amplitude = 40;
+        this.radian = 0;
+    }
+    
+    calcSinWave() {
+        this.radian += 0.1;
+        return Math.sin(this.radian) * this.amplitude;
     }
 
-    move(vect) {
-        this.coords.x = vect.x;
-        this.coords.y = vect.y;
+    move() {
+        this.coords.x = this.calcSinWave() + docWidth/2;
+        this.coords.y = this.calcSinWave() + docHeight/2;
         this.trailing();
     }
 
@@ -135,7 +146,7 @@ function setup() {
     bgCanvas = createGraphics(docWidth, docHeight); // canvas for trail
     frameRate(60);
 
-    nyanCat = new NyanCat(docWidth/2, docHeight/2, undefined, undefined, undefined, 10);
+    nyanCat = new NyanCat(docWidth/2, docHeight/2, undefined, undefined, undefined, 20);
     vNyanCats.push(new SmallNyanCat(getRand(1, docWidth), 0, 0, 1, 0),
                    new SmallNyanCat(getRand(1, docWidth), docHeight, 0, -1,0));
     hNyanCats.push(new SmallNyanCat(0, getRand(1, docHeight), 1, 0, undefined, 0),
@@ -159,9 +170,8 @@ function draw() {
     // draw bgCanvas starting at the top left corner
     image(bgCanvas, -docWidth/2, -docHeight/2, docWidth, docHeight);
 
-    nyanCat.move(createVector(mouseX, mouseY));
+    nyanCat.move();
     nyanCat.show();
-
     // display and update nyan cats locations
     smallNyanCats.forEach((cat, i) => {
         cat.move();
@@ -204,11 +214,6 @@ function draw() {
         let x = hDir === 1 ? 0 : docWidth;
         hNyanCats.push(new SmallNyanCat(x, getRand(1, docHeight), hDir, 0,  Math.floor(Math.random()*10+1), 0));
     }
-}
-
-function getRand(min, max) {
-    if (min === max) return min;
-    return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
 function mousePressed() {
