@@ -1,15 +1,11 @@
-let docWidth = document.documentElement.clientWidth;
-let docHeight = document.documentElement.clientHeight;
-let canvas;
-let nyanCanvas;
-let bgCanvas;
+let docWidth, docHeight;
+let canvas, nyanCanvas, bgCanvas;
+
+let nyanMusic, nyanImg, rainbowImg, earth; // for preloading
 
 let nyanCat; // nyan cat size: W:264 H:168 Gap:56
-let nyanMusic;
-let smallNyanCats = [];
-let rainbowImg;
-let nyanImg;
-let earth;
+let smallNyanCats, vNyanCats, hNyanCats; // arrays for nyan cats
+let vDir, hDir; // keep track of vertical and horizontal nyan cats direction
 
 class Trail {
     constructor(limit = 10, rWidth, rHeight) {
@@ -106,6 +102,7 @@ class SmallNyanCat {
 }
 
 function preload() {
+    // load images
     nyanImg = loadImage("assets/nyancat.gif");
     rainbowImg = loadImage("assets/rainbow.png");
 
@@ -121,6 +118,15 @@ function preload() {
     // load model and img for Earth
     earth = {model: loadModel("assets/Earth2K.obj", true),
              img: loadImage("assets/Diffuse_2K.png")};
+
+    // set globals
+    docWidth = document.documentElement.clientWidth;
+    docHeight = document.documentElement.clientHeight;
+    vDir = 1;
+    hDir = 1;
+    smallNyanCats = [];
+    hNyanCats = [];
+    vNyanCats = [];
 }
 
 function setup() {
@@ -130,6 +136,10 @@ function setup() {
     frameRate(60);
 
     nyanCat = new NyanCat(docWidth/2, docHeight/2, undefined, undefined, undefined, 10);
+    vNyanCats.push(new SmallNyanCat(getRand(1, docWidth), 0, 0, 1, 0),
+                   new SmallNyanCat(getRand(1, docWidth), docHeight, 0, -1,0));
+    hNyanCats.push(new SmallNyanCat(0, getRand(1, docHeight), 1, 0, undefined, 0),
+                   new SmallNyanCat(0, getRand(1, docHeight), 1, 0, undefined, 0));
 }
 
 function draw() {
@@ -152,7 +162,7 @@ function draw() {
     nyanCat.move(createVector(mouseX, mouseY));
     nyanCat.show();
 
-    // display and update nyancats location
+    // display and update nyan cats locations
     smallNyanCats.forEach((cat, i) => {
         cat.move();
         cat.show();
@@ -162,10 +172,43 @@ function draw() {
                 smallNyanCats.splice(i, 1);
         }
     })
+
+    vNyanCats.forEach((cat, i) => {
+        cat.move();
+        cat.show();
+        // remove out of bounds nyan cats
+        if (cat.coords.x > docWidth || cat.coords.x < 0 ||
+            cat.coords.y > docHeight || cat.coords.y < 0) {
+                vNyanCats.splice(i, 1);
+        }
+    });
+
+    hNyanCats.forEach((cat, i) => {
+        cat.move();
+        cat.show();
+        // remove out of bounds nyan cats
+        if (cat.coords.x > docWidth || cat.coords.x < 0 ||
+            cat.coords.y > docHeight || cat.coords.y < 0) {
+                hNyanCats.splice(i, 1);
+        }
+    });
+
+    if (vNyanCats.length < 2) {
+        vDir *= -1;
+        let y = vDir === 1 ? 0 : docHeight;
+        vNyanCats.push(new SmallNyanCat(getRand(1, docWidth), y, 0, vDir, 0, Math.floor(Math.random()*10+1)));
+    }
+
+    if (hNyanCats.length < 2) {
+        hDir *= -1;
+        let x = hDir === 1 ? 0 : docWidth;
+        hNyanCats.push(new SmallNyanCat(x, getRand(1, docHeight), hDir, 0,  Math.floor(Math.random()*10+1), 0));
+    }
 }
 
-function getRand() {
-    return Math.random() < 0.5 ? -1 : 1;
+function getRand(min, max) {
+    if (min === max) return min;
+    return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
 function mousePressed() {
