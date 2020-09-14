@@ -176,6 +176,7 @@ function draw() {
     
     // custom configurations for Earth model
     push();
+    lights();
     rotate(frameCount*0.015, [0,1,0]);
     scale(2.0*min(docWidth/screenSize.w, docHeight/screenSize.h));
     texture(nyanCanvas);
