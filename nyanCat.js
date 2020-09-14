@@ -1,3 +1,4 @@
+let screenSize = {w:1536, h:722};
 let docWidth, docHeight;
 let canvas, nyanCanvas, bgCanvas;
 
@@ -16,7 +17,6 @@ class Trail {
     constructor(limit = 10, rWidth, rHeight) {
         this.history = [];
         this.speed = rWidth;
-        this.direction = true;
         this.limit = limit;
         this.rainbowDim = {w: rWidth, h: rHeight};
     }
@@ -41,7 +41,7 @@ class Trail {
 }
 
 class NyanCat {
-    constructor(x, y, width=43, height=15, trailCnt=-1, trailWidth=10, trailHeight=5) {
+    constructor(x, y, width=43, height=15, trailCnt=20, trailWidth=10, trailHeight=5) {
         this.coords = {x, y};
         this.dimension = {w: width, h: height};
         this.trail = new Trail(trailCnt, trailWidth, trailHeight);
@@ -51,14 +51,14 @@ class NyanCat {
         this.radians = [0, 0];
     }
     
-    calcSinWave(dt, index) {
-        this.radians[index] += dt;
+    calcSinVal(d, index) {
+        this.radians[index] += d;
         return Math.sin(this.radians[index]) * this.amplitude;
     }
 
     move() {
-        this.coords.x = this.calcSinWave(this.dx, 0) + docWidth/2;
-        this.coords.y = this.calcSinWave(this.dy, 1) + docHeight/2;
+        this.coords.x = this.calcSinVal(this.dx, 0) + docWidth/2;
+        this.coords.y = this.calcSinVal(this.dy, 1) + docHeight/2;
         this.trailing();
     }
 
@@ -145,7 +145,7 @@ function preload() {
     earth = {model: loadModel("assets/Earth2K.obj", true),
              img: loadImage("assets/Diffuse_2K.png")};
 
-    // set globals
+    // initialize globals
     docWidth = document.documentElement.clientWidth;
     docHeight = document.documentElement.clientHeight;
     vDir = 1;
@@ -161,7 +161,10 @@ function setup() {
     bgCanvas = createGraphics(docWidth, docHeight); // canvas for trail
     frameRate(60);
 
-    nyanCat = new NyanCat(docWidth/2, docHeight/2, undefined, undefined, 20);
+    // initialize nyan cats
+    let nyanCatWidth = 43*min(docWidth/screenSize.w, docHeight/screenSize.h); // scale
+    let nyanCatHeight = 15**min(docWidth/screenSize.w, docHeight/screenSize.h); // scale
+    nyanCat = new NyanCat(docWidth/2, docHeight/2, nyanCatWidth, nyanCatHeight, 60);
     vNyanCats.push(new SmallNyanCat(getRand(1, docWidth), 0, 0, 1, 0),
                    new SmallNyanCat(getRand(1, docWidth), docHeight, 0, -1,0));
     hNyanCats.push(new SmallNyanCat(0, getRand(1, docHeight), 1, 0, undefined, 0),
@@ -174,7 +177,7 @@ function draw() {
     // custom configurations for Earth model
     push();
     rotate(frameCount*0.015, [0,1,0]);
-    scale(2.0);
+    scale(2.0*min(docWidth/screenSize.w, docHeight/screenSize.h));
     texture(nyanCanvas);
     noStroke();
     model(earth.model);
@@ -218,6 +221,7 @@ function draw() {
         }
     });
 
+    // add nyan cats to canvas
     if (vNyanCats.length < 2) {
         vDir *= -1;
         let y = vDir === 1 ? 0 : docHeight;
@@ -255,6 +259,10 @@ function keyPressed() {
 
     if (key === 'r') {
         bgCanvas.clear();
+    }
+
+    if (key === 'd') {
+        saveCanvas(canvas, "p5NyanCat", "png");
     }
     return false;
 }
