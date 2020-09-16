@@ -4,7 +4,7 @@ let canvas, nyanCanvas, bgCanvas;
 
 let nyanMusic, nyanImg, rainbowImg, earth; // for preloading
 
-let nyanCat; // nyan cat size: W:264 H:168 Gap:56
+let nyanCat, nyanCat2; // nyan cat size: W:264 H:168 Gap:56
 let smallNyanCats, vNyanCats, hNyanCats; // arrays for nyan cats
 let vDir, hDir; // keep track of vertical and horizontal nyan cats direction
 
@@ -110,18 +110,33 @@ class SmallNyanCat {
     }
 
     show() {
+        let xPrime = this.coords.x-docWidth/2;
+        let yPrime = this.coords.y-docHeight/2;
+        
         push();
         if (this.direction.x === 1)
-            image(nyanImg, this.coords.x-docWidth/2, this.coords.y-docHeight/2, this.dimension.w, this.dimension.h);
+            image(nyanImg, xPrime, yPrime, this.dimension.w, this.dimension.h);
         else if (this.direction.x === -1) {
             scale(-1,1); // flip image
-            image(nyanImg, -(this.coords.x-docWidth/2)-this.dimension.w, this.coords.y-docHeight/2, this.dimension.w, this.dimension.h);
+            image(nyanImg, -(xPrime)-this.dimension.w, yPrime, this.dimension.w, this.dimension.h);
         }
-        else if (this.direction.y === 1)
-            image(nyanImg, this.coords.x-docWidth/2, this.coords.y-docHeight/2, this.dimension.w, this.dimension.h);
+        else if (this.direction.y === 1) {
+            // rotate 90 degrees clockwise
+            translate(width/2, height/2);
+            rotate(HALF_PI);            
+            imageMode(CENTER);
+            image(nyanImg, -(docHeight/2-(yPrime+this.dimension.h))-this.dimension.h/2, 
+                            docWidth/2-(xPrime+this.dimension.w)+this.dimension.w/2, 
+                            this.dimension.w, this.dimension.h);
+        }
         else {
-            scale(-1,1); // flip image
-            image(nyanImg, -(this.coords.x-docWidth/2)-this.dimension.w, this.coords.y-docHeight/2, this.dimension.w, this.dimension.h);
+            // rotate 90 degrees counter-clockwise
+            translate(width/2, height/2);
+            rotate(-HALF_PI);            
+            imageMode(CENTER);
+            image(nyanImg, (docHeight/2-(yPrime+this.dimension.h))+this.dimension.h/2, 
+                            -(docWidth/2-(xPrime+this.dimension.w))-this.dimension.w/2, 
+                            this.dimension.w, this.dimension.h);
         }
         pop();
     }
@@ -165,6 +180,7 @@ function setup() {
     let nyanCatWidth = 43*min(docWidth/screenSize.w, docHeight/screenSize.h); // scale
     let nyanCatHeight = 15**min(docWidth/screenSize.w, docHeight/screenSize.h); // scale
     nyanCat = new NyanCat(docWidth/2, docHeight/2, nyanCatWidth, nyanCatHeight, 60);
+    // nyanCat2 = new NyanCat(docWidth, docHeight, nyanCatWidth, nyanCatHeight, 10);
     vNyanCats.push(new SmallNyanCat(getRand(1, docWidth), 0, 0, 1, 0),
                    new SmallNyanCat(getRand(1, docWidth), docHeight, 0, -1,0));
     hNyanCats.push(new SmallNyanCat(0, getRand(1, docHeight), 1, 0, undefined, 0),
@@ -191,6 +207,8 @@ function draw() {
 
     nyanCat.move();
     nyanCat.show();
+    // nyanCat2.move();
+    // nyanCat2.show();
     // display and update nyan cats locations
     smallNyanCats.forEach((cat, i) => {
         cat.move();
