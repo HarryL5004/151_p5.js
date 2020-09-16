@@ -1,12 +1,12 @@
+// Author: Harry Leung
+// For reference: nyan cat size - W:264 H:168 Gap:56
 let screenSize = {w:1536, h:722};
 let docWidth, docHeight;
 let canvas, nyanCanvas, bgCanvas;
 
 let nyanMusic, nyanImg, rainbowImg, earth; // for preloading
-
-let nyanCat, nyanCat2; // nyan cat size: W:264 H:168 Gap:56
 let globeNyanCats, smallNyanCats, vNyanCats, hNyanCats; // arrays for nyan cats
-let vDir, hDir; // keep track of vertical and horizontal nyan cats direction
+let hDir, vDir; // keep track of vertical and horizontal nyan cats direction
 
 function getRand(min, max) {
     if (min === max) return min;
@@ -58,9 +58,10 @@ class NyanCat {
     }
 
     move() {
+        this.trailing();
         this.coords.x = this.calcSinVal(this.dx, 0) + this.pos.x;
         this.coords.y = this.calcSinVal(this.dy, 1) + this.pos.y;
-        this.trailing();
+        
     }
 
     trailing() {
@@ -79,7 +80,7 @@ class NyanCat {
 class SmallNyanCat {
     constructor(x, y, xDir, yDir, xSpd=4, ySpd=5, multipler=1) {
         this.coords = {x,y};
-        this.dimension = {w: 33*multipler, h: 20*multipler};
+        this.dimension = {w: 33*multipler, h: 21*multipler, g: 7*multipler};
         this.speed = createVector(xSpd,ySpd);
         this.direction = createVector(xDir,yDir);
         this.colors = [color(231, 8, 15), color(231, 145, 15),
@@ -91,22 +92,31 @@ class SmallNyanCat {
     }
 
     move() {
+        this.trailing();
         this.coords.x += this.speed.x*this.direction.x;
         this.coords.y += this.speed.y*this.direction.y;
-        this.trailing();
     }
 
     trailing() {
-        // determine trail size and position
-        let trailXPos = this.coords.x+this.dimension.w/2;
-        let trailYPos = this.coords.y+this.dimension.h/2;
-
+        // determine trail position
+        let trailXPos;
+        let trailYPos;
+        if (this.direction.x === 0) { // vertical
+            trailXPos = this.coords.x+this.dimension.w/2;
+            trailYPos = this.direction.y === 1 ? this.coords.y : this.coords.y + this.dimension.h - this.dimension.g;
+        } else if (this.direction.y === 0) { // horizontal
+            trailXPos = this.direction.x === 1 ? this.coords.x + this.dimension.g : this.coords.x + this.dimension.w - this.dimension.g;
+            trailYPos = this.coords.y+this.dimension.h/2;
+        } else {
+            trailXPos = this.coords.x+this.dimension.w/2;
+            trailYPos = this.coords.y+this.dimension.h/2;
+        }
         // determine trail color
         let color = this.currColor % 1 === 0 ? this.colors[this.currColor] : 
                     lerpColor(this.colors[this.currColor-0.5], this.colors[this.currColor+0.5], 0.5);
         this.currColor = this.currColor+0.5 > 5 ? 0 : this.currColor+0.5;
 
-        bgCanvas.fill(color); // fill color
+        bgCanvas.fill(color);
         bgCanvas.noStroke();
         bgCanvas.circle(trailXPos, trailYPos, this.radius);
     }
@@ -175,6 +185,9 @@ function preload() {
 
 function setup() {
     document.body.style.overflow = "hidden"; // get rid of scrollbar
+    document.getElementsByTagName("main")[0].addEventListener('contextmenu', e => {
+        e.preventDefault();
+    });
     canvas = createCanvas(docWidth, docHeight, WEBGL); // WEBGL canvas
     nyanCanvas = createGraphics(docWidth, docHeight); // 2D canvas for model
     bgCanvas = createGraphics(docWidth, docHeight); // canvas for trail
@@ -217,6 +230,7 @@ function draw() {
         cat.move();
         cat.show();
     })
+
     smallNyanCats.forEach((cat, i) => {
         cat.move();
         cat.show();
@@ -231,8 +245,8 @@ function draw() {
         cat.move();
         cat.show();
         // remove out of bounds nyan cats
-        if (cat.coords.x > docWidth || cat.coords.x < 0 ||
-            cat.coords.y > docHeight || cat.coords.y < 0) {
+        if (cat.coords.x > docWidth+cat.dimension.w || cat.coords.x < -cat.dimension.w ||
+            cat.coords.y > docHeight+cat.dimension.h || cat.coords.y < -cat.dimension.h) {
                 vNyanCats.splice(i, 1);
         }
     });
@@ -241,8 +255,8 @@ function draw() {
         cat.move();
         cat.show();
         // remove out of bounds nyan cats
-        if (cat.coords.x > docWidth || cat.coords.x < 0 ||
-            cat.coords.y > docHeight || cat.coords.y < 0) {
+        if (cat.coords.x > docWidth+cat.dimension.w || cat.coords.x < -cat.dimension.w ||
+            cat.coords.y > docHeight+cat.dimension.h || cat.coords.y < -cat.dimension.h) {
                 hNyanCats.splice(i, 1);
         }
     });
@@ -252,14 +266,14 @@ function draw() {
         vDir *= -1;
         let y = vDir === 1 ? 0 : docHeight;
         let multipler = getRand(1,5);
-        vNyanCats.push(new SmallNyanCat(getRand(1, docWidth), y, 0, vDir, 0, Math.floor(Math.random()*10+1)/multipler, multipler));
+        vNyanCats.push(new SmallNyanCat(getRand(10, docWidth-10), y, 0, vDir, 0, Math.floor(Math.random()*10+1)/multipler, multipler));
     }
 
     if (hNyanCats.length < 2) {
         hDir *= -1;
         let x = hDir === 1 ? 0 : docWidth;
         let multipler = getRand(1,5);
-        hNyanCats.push(new SmallNyanCat(x, getRand(1, docHeight), hDir, 0,  Math.floor(Math.random()*10+1)/multipler, 0, multipler));
+        hNyanCats.push(new SmallNyanCat(x, getRand(10, docHeight-10), hDir, 0,  Math.floor(Math.random()*10+1)/multipler, 0, multipler));
     }
 }
 

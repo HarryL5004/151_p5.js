@@ -6,12 +6,14 @@ Getting Started
 
 Key Binds
 -------
+Use **ScrollWheel** to increase/decrease the speed of the Nyan Cats in the background  
+**MouseClick** to spawn Nyan Cats  
 Press **Space** to play/pause **\*** music  
 Press **p** to pause the canvas  
 Press **r** to clean the canvas  
 Press **d** to download the canvas  
 
-**\*** pausing may not work as intended on your browser due to a bug associated with p5.sound.js. Please use **Firefox** if you wish to have a bug free experience.
+**\*** pausing may not work as intended on your browser due to a bug associated with p5.sound.js. **Firefox** is recommended to have a bug free experience.
 
 Credit to
 ----
