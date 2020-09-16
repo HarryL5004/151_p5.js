@@ -1,8 +1,8 @@
 P5.js: Generative Drawing
 ==========
-Getting Started
+Link to Canvas
 -------
-[Link to website](https://harryl5004.github.io/151_p5Tutorial)
+[https://harryl5004.github.io/151_p5.js/](https://harryl5004.github.io/151_p5.js/)
 
 Key Binds
 -------
