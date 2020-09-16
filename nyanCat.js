@@ -267,3 +267,13 @@ function keyPressed() {
     }
     return false;
 }
+
+function mouseWheel(e) {
+    vNyanCats.forEach(cat => {
+        cat.speed.y = cat.speed.y - e.delta/100 > 0 ? cat.speed.y - e.delta/100 : 1;
+    });
+
+    hNyanCats.forEach(cat => {
+        cat.speed.x = cat.speed.x - e.delta/100 > 0 ? cat.speed.x - e.delta/100 : 1;
+    });
+}
