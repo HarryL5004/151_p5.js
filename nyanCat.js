@@ -112,7 +112,7 @@ class SmallNyanCat {
     show() {
         let xPrime = this.coords.x-docWidth/2;
         let yPrime = this.coords.y-docHeight/2;
-        
+
         push();
         if (this.direction.x === 1)
             image(nyanImg, xPrime, yPrime, this.dimension.w, this.dimension.h);
@@ -261,7 +261,7 @@ function mousePressed() {
                        new SmallNyanCat(mouseX, mouseY, -1, -1));
 }
 
-// event listener
+// event listeners
 function keyPressed() {
     if (key === 'p' && isLooping()) {
         noLoop();
@@ -293,5 +293,10 @@ function mouseWheel(e) {
 
     hNyanCats.forEach(cat => {
         cat.speed.x = cat.speed.x - e.delta/100 > 0 ? cat.speed.x - e.delta/100 : 1;
+    });
+
+    smallNyanCats.forEach(cat => {
+        cat.speed.x = cat.speed.x - e.delta/100 > 0 ? cat.speed.x - e.delta/100 : 1;
+        cat.speed.y = cat.speed.y - e.delta/100 > 0 ? cat.speed.y - e.delta/100 : 1;
     });
 }
